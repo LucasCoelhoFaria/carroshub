@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Entrar | AutoHub</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Identity -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+        }
+
+        .login-card {
+            background: #020617;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+        }
+
+        footer {
+            margin-top: 32px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+
+    <div class="logo">AutoHub</div>
+    <div class="subtitle">
+        Gerencie seu empreendimento de forma inteligente
+    </div>
+
+    <!-- Google Login -->
+    <div id="g_id_onload"
+         data-client_id="428743720412-mpndboltpkaad4jcre5v3uuvhojtvg1a.apps.googleusercontent.com"
+         data-callback="onLogin">
+    </div>
+
+    <div class="g_id_signin"
+         data-theme="filled_blue"
+         data-size="large"
+         data-text="signin_with"
+         data-shape="pill">
+    </div>
+
+    <footer>
+        Ao continuar, você concorda com nossos termos de uso
+    </footer>
+
+</div>
+
+<script>
+    function onLogin(response) {
+        const token = response.credential;
+
+        fetch("/login/google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token })
+        })
+        .then(res => {
+            localStorage.setItem("google_token", token);
+            if (res.redirected) {
+                window.location.href = res.url;
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

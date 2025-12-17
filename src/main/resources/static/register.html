@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Empreendimento | AutoHub</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #020617, #0f172a);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e5e7eb;
+        }
+
+        .card {
+            background: #020617;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        p {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #cbd5f5;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+            background: #020617;
+            color: #e5e7eb;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .hint {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #9ca3af;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>Crie seu empreendimento</h1>
+    <p>Essas informações serão usadas para personalizar sua página</p>
+
+    <label for="businessName">Nome do empreendimento</label>
+    <input id="businessName" placeholder="Ex: Estética Bella Vida" />
+
+    <label for="whatsapp">WhatsApp</label>
+    <input id="whatsapp" placeholder="Ex: 31999999999" />
+
+    <button onclick="submitForm()">Finalizar cadastro</button>
+
+    <div class="hint">
+        Você poderá alterar essas informações depois
+    </div>
+
+</div>
+
+<script>
+    function submitForm() {
+        const token = localStorage.getItem("google_token");
+
+        if (!token) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/login";
+            return;
+        }
+
+        fetch("/login/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                token: token,
+                businessName: document.getElementById("businessName").value,
+                whatsapp: document.getElementById("whatsapp").value
+            })
+        })
+        .then(res => {
+            if (res.redirected) {
+                localStorage.removeItem("google_token");
+                window.location.href = res.url;
+            }
+        })
+        .catch(() => alert("Erro ao concluir cadastro"));
+    }
+</script>
+
+</body>
+</html>

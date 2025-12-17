@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${businessName} + ' - Estética Automotiva'">Landing Page</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --primary: #e63946; /* Vermelho esportivo */
+            --dark: #0a0a0a;
+            --gray-dark: #1a1a1a;
+            --gray-light: #f4f4f4;
+            --text-muted: #a0a0a0;
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                        url('https://images.unsplash.com/photo-1603584173870-7f394da87877?auto=format&fit=crop&q=80&w=1920') no-repeat center center/cover;
+            padding: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 100px 5%;
+            background: var(--dark);
+        }
+
+        .services h2 {
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .services h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            margin: 10px auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--gray-dark);
+            padding: 40px;
+            border-radius: 4px;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            background: #222;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .card a {
+            display: inline-block;
+            text-decoration: none;
+            color: #fff;
+            background: var(--primary);
+            padding: 12px 25px;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .card a:hover { opacity: 0.8; }
+
+        /* FAQ Section */
+        .faq {
+            padding: 100px 5%;
+            background: #0f0f0f;
+        }
+
+        .faq h2 { text-align: center; margin-bottom: 50px; font-family: 'Oswald'; }
+
+        .faq-item {
+            max-width: 800px;
+            margin: 0 auto 15px;
+            background: var(--gray-dark);
+            padding: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .faq-item h4 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .faq-item p {
+            margin-top: 10px;
+            color: var(--text-muted);
+            display: none; /* Escondido para o JS */
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px;
+            text-align: center;
+            background: #050505;
+            border-top: 1px solid #222;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Animações */
+        .reveal { opacity: 0; transform: translateY(30px); transition: 1s all ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <h1 th:text="${hero['title']}">Título do empreendimento</h1>
+    <p th:text="${hero['subtitle']}">Subtítulo da seção Hero</p>
+</section>
+
+<section class="services">
+    <h2 class="reveal">Nossos Serviços</h2>
+    <div class="cards">
+        <div class="card reveal" th:each="service : ${services}">
+            <div>
+                <h3 th:text="${service.name}">Nome do Serviço</h3>
+                <p th:text="${service.description}">Descrição do serviço</p>
+            </div>
+            <a th:href="'https://wa.me/' + ${whatsapp}" target="_blank">
+                <i class="fab fa-whatsapp"></i> Agendar Agora
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="faq">
+    <h2 class="reveal">Dúvidas Frequentes</h2>
+    <div class="faq-item reveal" th:each="f : ${faq}" onclick="toggleFaq(this)">
+        <h4 th:text="${f.question}">Pergunta</h4>
+        <p th:text="${f.answer}">Resposta</p>
+    </div>
+</section>
+
+<footer>
+    <p th:text="${footer['text']}">© 2025 AutoHub - Todos os direitos reservados</p>
+</footer>
+
+<script>
+    // Efeito de sanfona no FAQ
+    function toggleFaq(element) {
+        const p = element.querySelector('p');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Scroll Reveal Simples
+    function reveal() {
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementVisible = 150;
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add("active");
+            }
+        }
+    }
+
+    window.addEventListener("scroll", reveal);
+    // Disparar uma vez ao carregar
+    reveal();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+FROM postgres:16
+
+# Variáveis padrão (podem ser sobrescritas no docker run)
+ENV POSTGRES_DB=autohub
+ENV POSTGRES_USER=autohub_user
+ENV POSTGRES_PASSWORD=autohub_pass
+
+# SQL de inicialização
+COPY init.sql /docker-entrypoint-initdb.d/init.sql

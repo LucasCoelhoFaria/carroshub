@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${business.businessName} + ' - Painel Administrativo'">Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #e63946;
+            --success: #1fa67a;
+            --bg: #0d0d0d;
+            --sidebar-bg: #050505;
+            --card-bg: #1a1a1a;
+            --border: #333;
+            --input-bg: #252525;
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; }
+
+        /* Sidebar Fixa */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0; top: 0; z-index: 1000;
+        }
+
+        .sidebar h1 { font-size: 1.1rem; color: var(--primary); margin-bottom: 40px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .nav-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover { background: var(--card-bg); color: var(--primary); }
+
+        /* Conteúdo Principal */
+        main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 40px 5%;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        h2 { font-size: 1.4rem; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
+        h2 i { color: var(--primary); }
+
+        /* Estilo dos Inputs */
+        input, textarea {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+            border-radius: 8px; padding: 14px; color: white; margin-bottom: 10px; font-family: inherit;
+        }
+
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+        /* Botões Estilizados */
+        .btn {
+            cursor: pointer; border: none; padding: 12px 24px; border-radius: 8px;
+            font-weight: 600; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; margin-bottom: 20px; }
+        .btn-danger { background: rgba(255, 77, 77, 0.1); border: 1px solid #ff4d4d; color: #ff4d4d; }
+        .btn-danger:hover { background: #ff4d4d; color: white; }
+
+        /* Lista de Cards Dinâmicos */
+        .card-list { display: grid; gap: 15px; }
+        .dynamic-card {
+            background: #111; padding: 20px; border-radius: 10px;
+            display: grid; grid-template-columns: 1fr 2fr auto; gap: 15px; align-items: center;
+            border: 1px solid #222;
+        }
+
+        #status-toast {
+            position: fixed; top: 20px; right: 20px; background: var(--success);
+            color: white; padding: 12px 25px; border-radius: 8px; display: none; z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 70px; padding: 20px 10px; }
+            .sidebar h1, .nav-link span { display: none; }
+            main { margin-left: 70px; width: calc(100% - 70px); }
+            .dynamic-card { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<input type="hidden" id="businessIdRef" th:value="${business.id}" />
+<input type="hidden" id="heroIdRef" th:value="${sections.?[type=='HERO'][0].id}" />
+<input type="hidden" id="footerIdRef" th:value="${sections.?[type=='FOOTER'][0].id}" />
+
+<div id="status-toast">Ação realizada com sucesso!</div>
+
+<aside class="sidebar">
+    <h1 th:text="${business.businessName}">Dashboard</h1>
+    <nav>
+        <a href="#hero-editor" class="nav-link"><i class="fas fa-home"></i> <span>Destaque (Hero)</span></a>
+        <a href="#services-editor" class="nav-link"><i class="fas fa-tools"></i> <span>Serviços</span></a>
+        <a href="#faq-editor" class="nav-link"><i class="fas fa-question-circle"></i> <span>Perguntas (FAQ)</span></a>
+    </nav>
+</aside>
+
+<main>
+    <section id="hero-editor">
+        <h2><i class="fas fa-star"></i> Editar Hero</h2>
+        <label>Título</label>
+        <input type="text" id="heroTitle" th:value="${sections.?[type=='HERO'][0].content['title']}" />
+        <label>Subtítulo</label>
+        <input type="text" id="heroSubtitle" th:value="${sections.?[type=='HERO'][0].content['subtitle']}" />
+        <button class="btn btn-primary" onclick="updateHeroSection()">Salvar Alterações</button>
+    </section>
+
+    <section id="services-editor">
+        <h2><i class="fas fa-concierge-bell"></i> Gerenciar Serviços</h2>
+        <button class="btn btn-success" onclick="addNewService()">+ Adicionar Novo Serviço</button>
+        <div id="services-container" class="card-list">
+            <div class="dynamic-card" th:each="s : ${services}" th:data-id="${s.id}">
+                <input type="text" th:value="${s.name}" class="s-name" placeholder="Nome" />
+                <textarea rows="1" th:text="${s.description}" class="s-desc" placeholder="Descrição"></textarea>
+                <div style="display:flex; gap: 8px;">
+                    <button class="btn btn-primary" onclick="saveService(this)"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-danger" onclick="deleteService(this)"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq-editor">
+        <h2><i class="fas fa-comments"></i> Perguntas Frequentes</h2>
+        <button class="btn btn-success" onclick="addNewFaq()">+ Adicionar Nova Pergunta</button>
+        <div id="faq-container" class="card-list">
+            <div class="dynamic-card" th:each="f : ${faqs}" th:data-id="${f.id}">
+                <input type="text" th:value="${f.question}" class="f-ques" placeholder="Pergunta" />
+                <textarea rows="1" th:text="${f.answer}" class="f-ans" placeholder="Resposta"></textarea>
+                <div style="display:flex; gap: 8px;">
+                    <button class="btn btn-primary" onclick="saveFaq(this)"><i class="fas fa-save"></i></button>
+                    <button class="btn btn-danger" onclick="deleteFaq(this)"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // Captura segura dos IDs vindos do HTML processado pelo Thymeleaf
+    const getBusinessId = () => document.getElementById('businessIdRef').value;
+    const getHeroId = () => document.getElementById('heroIdRef').value;
+
+    function showToast(msg) {
+        const toast = document.getElementById('status-toast');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    // --- LÓGICA DE SERVIÇOS ---
+    async function addNewService() {
+        const id = getBusinessId();
+        console.log("Criando serviço para Business ID:", id);
+
+        try {
+            const response = await fetch(`/dashboard/services/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: 'Novo Serviço', description: '', enabled: true })
+            });
+
+            if (response.ok) {
+                const s = await response.json();
+                const container = document.getElementById('services-container');
+                const html = `
+                    <div class="dynamic-card" data-id="${s.id}">
+                        <input type="text" value="${s.name}" class="s-name" />
+                        <textarea rows="1" class="s-desc">${s.description}</textarea>
+                        <div style="display:flex; gap: 8px;">
+                            <button class="btn btn-primary" onclick="saveService(this)"><i class="fas fa-save"></i></button>
+                            <button class="btn btn-danger" onclick="deleteService(this)"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('afterbegin', html);
+                showToast("Serviço criado!");
+            }
+        } catch (err) { console.error("Erro ao criar serviço:", err); }
+    }
+
+    function saveService(btn) {
+        const card = btn.closest('.dynamic-card');
+        const id = card.dataset.id;
+        const body = {
+            name: card.querySelector('.s-name').value,
+            description: card.querySelector('.s-desc').value,
+            enabled: true
+        };
+
+        fetch(`/dashboard/services/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(res => { if(res.ok) showToast("Salvo!"); });
+    }
+
+    function deleteService(btn) {
+        if(!confirm("Tem certeza que deseja excluir?")) return;
+        const card = btn.closest('.dynamic-card');
+        fetch(`/dashboard/services/${card.dataset.id}`, { method: 'DELETE' })
+            .then(res => { if(res.ok) card.remove(); });
+    }
+
+    // --- LÓGICA DE FAQ ---
+    async function addNewFaq() {
+        const id = getBusinessId();
+        try {
+            const response = await fetch(`/dashboard/faqs/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: 'Nova pergunta', answer: '', enabled: true })
+            });
+
+            if (response.ok) {
+                const f = await response.json();
+                const container = document.getElementById('faq-container');
+                const html = `
+                    <div class="dynamic-card" data-id="${f.id}">
+                        <input type="text" value="${f.question}" class="f-ques" />
+                        <textarea rows="1" class="f-ans">${f.answer}</textarea>
+                        <div style="display:flex; gap: 8px;">
+                            <button class="btn btn-primary" onclick="saveFaq(this)"><i class="fas fa-save"></i></button>
+                            <button class="btn btn-danger" onclick="deleteFaq(this)"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('afterbegin', html);
+                showToast("Pergunta criada!");
+            }
+        } catch (err) { console.error("Erro ao criar FAQ:", err); }
+    }
+
+    function saveFaq(btn) {
+        const card = btn.closest('.dynamic-card');
+        const id = card.dataset.id;
+        const body = {
+            question: card.querySelector('.f-ques').value,
+            answer: card.querySelector('.f-ans').value,
+            enabled: true
+        };
+
+        fetch(`/dashboard/faqs/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(res => { if(res.ok) showToast("Salvo!"); });
+    }
+
+    function deleteFaq(btn) {
+        if(!confirm("Excluir esta pergunta?")) return;
+        const card = btn.closest('.dynamic-card');
+        fetch(`/dashboard/faqs/${card.dataset.id}`, { method: 'DELETE' })
+            .then(res => { if(res.ok) card.remove(); });
+    }
+
+    // --- LÓGICA DO HERO ---
+    function updateHeroSection() {
+        const id = getHeroId();
+        const body = {
+            title: document.getElementById('heroTitle').value,
+            subtitle: document.getElementById('heroSubtitle').value
+        };
+
+        fetch(`/dashboard/sections/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(res => { if(res.ok) showToast("Hero atualizado!"); });
+    }
+</script>
+
+</body>
+</html>
